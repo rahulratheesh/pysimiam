@@ -1,0 +1,2 @@
+def class Communicator:
+	pass

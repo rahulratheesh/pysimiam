@@ -125,7 +125,10 @@ class QuickBotSupervisor(Supervisor):
         x_new = x + x_dt
         y_new = y + y_dt
            
-        return Pose(x_new, y_new, (theta_new + pi)%(2*pi)-pi)
+        pose_new = Pose(x_new, y_new, (theta_new + pi)%(2*pi)-pi)
+        
+        #print self.robot.robot_id, pose_new
+        return pose_new
 
     def get_controller_state(self):
         return self.parameters

@@ -8,7 +8,7 @@ class Robot(SimObject):
        of the provided subclasses instead: :class:`~robot.SimBot` for emulated robots
        or :class:`~robot.RealBot` for physical robots.
        """
-    
+
     def get_info(self):
         """Return the robot information structure, including sensor readings and
         shape information"""

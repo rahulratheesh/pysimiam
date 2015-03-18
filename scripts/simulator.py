@@ -123,7 +123,9 @@ class Simulator(threading.Thread):
         self.__trackers = []
         self.__qtree = None
         
+        robot_id = 0
         for thing in self.__world:
+            
             if thing.type == 'robot':
                 try:
                     # Create robot
@@ -137,18 +139,25 @@ class Simulator(threading.Thread):
                         robot.set_color(thing.robot.color)
                     elif len(self.__robots) < 8:
                         robot.set_color(self.__nice_colors[len(self.__robots)])
+                    robot.set_obj_id(robot_id)
+                    
+                    robot_id += 1
                         
                     # Create supervisor
                     sup_class = helpers.load_by_name(thing.supervisor.type,'supervisors')
                     
                     info = robot.get_info()
                     info.color = robot.get_color()
+                    # Added
+                    info.robot_id = robot.get_obj_id()
+
                     if thing.supervisor.options is not None:
                         supervisor = sup_class(thing.robot.pose, info, options = Struct(thing.supervisor.options))
                     else:
                         supervisor = sup_class(thing.robot.pose, info)                        
                     supervisor.set_logqueue(self.__log_queue)
                     name = "Robot {}: {}".format(len(self.__robots)+1, sup_class.__name__)
+
                     if self.__supervisor_param_cache is not None and \
                        len(self.__supervisor_param_cache) > len(self.__supervisors):
                         supervisor.set_parameters(self.__supervisor_param_cache[len(self.__supervisors)])
@@ -162,6 +171,7 @@ class Simulator(threading.Thread):
                     
                     # Create trackers
                     self.__trackers.append(simobject.Path(thing.robot.pose,robot.get_color()))
+
                 except:
                     self.log("[Simulator.construct_world] Robot creation failed!")
                     raise

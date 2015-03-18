@@ -11,6 +11,9 @@ from supervisor import Supervisor
 from ui import uiFloat
 from math import sqrt, sin, cos, atan2
 import numpy
+from pose import Pose
+
+goal_location = [Pose(5.0, 5.0, 0.0), Pose(5.0, 5.0, 0.0), Pose(5.0, 5.0, 0.0), Pose(5.0, 5.0, 0.0)]
 
 class QBFullSupervisor(QuickBotSupervisor):
     """QBFull supervisor implements the full switching behaviour for navigating labyrinths."""
@@ -62,6 +65,9 @@ class QBFullSupervisor(QuickBotSupervisor):
         self.add_controller(self.gs,
                             (self.at_obstacle, self.wall)
                             )
+        self.add_controller(self.wall,
+                        (self.at_goal, self.hold)
+                        )
         # End Week 7
 
         # Start in the 'go-to-goal' state
@@ -77,11 +83,15 @@ class QBFullSupervisor(QuickBotSupervisor):
 
     def at_goal(self):
         """Check if the distance to goal is small"""
-        return self.distance_from_goal < 0.05
+        return self.distance_from_goal < 0.09
 
     def at_obstacle(self):
         """Check if the distance to obstacle is small"""
-        return self.distmin < self.robot.ir_sensors.rmax/1.3
+        if self.distmin < self.robot.ir_sensors.rmax/1.3:
+            goal_location[self.robot.robot_id] = self.pose_est
+            return True
+        else:
+            return False
         
     def free(self):
         """Check if the distance to obstacle is large"""
@@ -96,7 +106,11 @@ class QBFullSupervisor(QuickBotSupervisor):
         self.parameters.pose = self.pose_est
 
         # Distance to the goal
-        self.distance_from_goal = sqrt((self.pose_est.x - self.parameters.goal.x)**2 + (self.pose_est.y - self.parameters.goal.y)**2)
+        # Added for swarm robots
+        goal = goal_location[(self.robot.robot_id + 1)%4]
+        self.distance_from_goal = sqrt((self.pose_est.x - goal.x)**2 + (self.pose_est.y - goal.y)**2)
+            
+        #self.distance_from_goal = sqrt((self.pose_est.x - self.parameters.goal.x)**2 + (self.pose_est.y - self.parameters.goal.y)**2)
         
         # Sensor readings in real units
         self.parameters.sensor_distances = self.get_ir_distances()

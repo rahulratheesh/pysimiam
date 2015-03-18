@@ -13,11 +13,12 @@ class SimObject:
        :type color: int
        """
 
-    def __init__(self, pose, color = 0):
+    def __init__(self, pose, color = 0, obj_id = 0):
         """Create an object at *pose* with *color*
         """
         self.set_color(color)
         self.set_pose(pose)
+        self.set_obj_id(obj_id)
 
     def get_color(self):
         """Get the internal color of the object"""
@@ -103,6 +104,13 @@ class SimObject:
            as a tuple (xmin, ymin, xmax, ymax)"""
         xs, ys = zip(*self.get_world_envelope())
         return (min(xs), min(ys), max(xs), max(ys))
+
+    # Added for tracking for swarm robots
+    def set_obj_id(self, obj_id):
+        self.obj_id = obj_id
+
+    def get_obj_id(self):
+        return self.obj_id
             
 
 class Polygon(SimObject):
